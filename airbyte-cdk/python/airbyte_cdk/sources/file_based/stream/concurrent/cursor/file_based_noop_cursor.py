@@ -50,3 +50,6 @@ class FileBasedNoopCursor(AbstractConcurrentFileBasedCursor):
 
     def emit_state_message(self) -> None:
         pass
+
+    def ensure_at_least_one_state_emitted(self) -> None:
+        pass

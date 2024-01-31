@@ -6,9 +6,10 @@ from typing import Any, Dict, List, MutableMapping, Optional, Tuple
 from unittest.mock import MagicMock
 
 import pytest
-from airbyte_cdk.models import AirbyteStateMessage
+from airbyte_cdk.models import AirbyteStateMessage, SyncMode
 from airbyte_cdk.sources.connector_state_manager import ConnectorStateManager
 from airbyte_cdk.sources.file_based.remote_file import RemoteFile
+from airbyte_cdk.sources.file_based.stream.concurrent.adapters import FileBasedStreamPartition
 from airbyte_cdk.sources.file_based.stream.concurrent.cursor import FileBasedConcurrentCursor
 from airbyte_cdk.sources.streams.concurrent.cursor import CursorField
 from freezegun import freeze_time
@@ -170,9 +171,22 @@ def test_add_file(
     expected_cursor_value: str,
 ):
     cursor = _make_cursor(initial_state)
-    cursor._pending_files = {uri: RemoteFile(uri=uri, last_modified=datetime.strptime(timestamp, DATE_TIME_FORMAT)) for uri, timestamp in pending_files}
     mock_message_repository = MagicMock()
     cursor._message_repository = mock_message_repository
+    stream = MagicMock()
+
+    cursor.set_pending_partitions([
+        FileBasedStreamPartition(
+            stream,
+            {"files": [RemoteFile(uri=uri, last_modified=datetime.strptime(timestamp, DATE_TIME_FORMAT))]},
+            mock_message_repository,
+            SyncMode.full_refresh,
+            FileBasedConcurrentCursor.CURSOR_FIELD,
+            initial_state,
+            cursor
+        ) for uri, timestamp in pending_files
+    ])
+
 
     uri, timestamp = file_to_add
     cursor.add_file(RemoteFile(uri=uri, last_modified=datetime.strptime(timestamp, DATE_TIME_FORMAT)))

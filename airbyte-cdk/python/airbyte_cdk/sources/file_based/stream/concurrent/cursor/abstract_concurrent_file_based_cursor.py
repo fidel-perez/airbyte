@@ -58,3 +58,7 @@ class AbstractConcurrentFileBasedCursor(Cursor, AbstractFileBasedCursor, ABC):
     @abstractmethod
     def emit_state_message(self) -> None:
         ...
+
+    @abstractmethod
+    def ensure_at_least_one_state_emitted(self) -> None:
+        ...

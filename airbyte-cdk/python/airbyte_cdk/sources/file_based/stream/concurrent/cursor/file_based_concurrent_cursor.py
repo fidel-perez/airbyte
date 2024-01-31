@@ -275,3 +275,6 @@ class FileBasedConcurrentCursor(AbstractConcurrentFileBasedCursor):
 
     def set_initial_state(self, value: StreamState) -> None:
         pass
+
+    def ensure_at_least_one_state_emitted(self) -> None:
+        self.emit_state_message()
