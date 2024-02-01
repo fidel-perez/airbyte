@@ -55,7 +55,7 @@ public class CdcStateCompressionTest {
   static private final int ADDED_COLUMNS = 1000;
 
   static private final MSSQLServerContainer<?> CONTAINER = new MsSQLContainerFactory().shared(
-      "mcr.microsoft.com/mssql/server:2022-latest", "withAgent");
+      "mcr.microsoft.com/mssql/server:2022-latest");
 
   private MsSQLTestDatabase testdb;
 

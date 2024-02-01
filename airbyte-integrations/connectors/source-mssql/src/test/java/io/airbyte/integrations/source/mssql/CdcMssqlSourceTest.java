@@ -77,7 +77,6 @@ public class CdcMssqlSourceTest extends CdcSourceTest<MssqlSource, MsSQLTestData
 
   @BeforeAll
   public void beforeAll() {
-    new MsSQLContainerFactory().withAgent(privateContainer);
     privateContainer.start();
   }
 
@@ -168,10 +167,10 @@ public class CdcMssqlSourceTest extends CdcSourceTest<MssqlSource, MsSQLTestData
   protected void tearDown() {
     try {
       DataSourceFactory.close(testDataSource);
+      super.tearDown();
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    super.tearDown();
 
   }
 

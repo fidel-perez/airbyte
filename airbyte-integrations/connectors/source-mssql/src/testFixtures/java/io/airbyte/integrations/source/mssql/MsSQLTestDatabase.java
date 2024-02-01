@@ -43,8 +43,6 @@ public class MsSQLTestDatabase extends TestDatabase<MSSQLServerContainer<?>, MsS
 
   public static enum ContainerModifier {
 
-    NETWORK("withNetwork"),
-    AGENT("withAgent"),
     WITH_SSL_CERTIFICATES("withSslCertificates");
 
     private final String methodName;
