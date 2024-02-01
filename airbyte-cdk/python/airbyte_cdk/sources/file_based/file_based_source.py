@@ -159,7 +159,8 @@ class FileBasedSource(ConcurrentSourceAdapter, ABC):
             self.stream_reader.config = parsed_config
             streams: List[AbstractFileBasedStream] = []
             for stream_config in parsed_config.streams:
-                stream_state = state_manager.get_stream_state(stream_config.name, None) if state_manager else None
+                catalog_stream = self._get_stream_from_catalog(stream_config)
+                stream_state = state_manager.get_stream_state(catalog_stream.name, catalog_stream.namespace) if state_manager else None
                 self._validate_input_schema(stream_config)
 
                 sync_mode = self._get_sync_mode_from_catalog(stream_config.name)
@@ -203,6 +204,12 @@ class FileBasedSource(ConcurrentSourceAdapter, ABC):
             errors_collector=self.errors_collector,
             cursor=cursor,
         )
+
+    def _get_stream_from_catalog(self, stream_config: FileBasedStreamConfig) -> AirbyteStream:
+        for stream in self.catalog.streams:
+            if stream.stream.name == stream_config.name:
+                return stream.stream
+        raise RuntimeError(f"Stream {stream_config.name} was not found in the catalog. Please refresh your catalog, or contact Support for assistance.")
 
     def _get_sync_mode_from_catalog(self, stream_name: str) -> Optional[SyncMode]:
         if self.catalog:
