@@ -66,7 +66,5 @@ class LowHistoryLimitConcurrentCursor(FileBasedConcurrentCursor):
     DEFAULT_MAX_HISTORY_SIZE = 3
 
 
-
-
 def make_remote_files(files: List[str]) -> List[RemoteFile]:
     return [RemoteFile(uri=f, last_modified=datetime.strptime("2023-06-05T03:54:07.000Z", "%Y-%m-%dT%H:%M:%S.%fZ")) for f in files]

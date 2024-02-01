@@ -3,6 +3,7 @@
 #
 
 from airbyte_cdk.sources.file_based.stream.concurrent.cursor import FileBasedConcurrentCursor
+from airbyte_cdk.test.state_builder import StateBuilder
 from unit_tests.sources.file_based.helpers import LowHistoryLimitConcurrentCursor
 from unit_tests.sources.file_based.scenarios.file_based_source_builder import FileBasedSourceBuilder
 from unit_tests.sources.file_based.scenarios.scenario_builder import IncrementalScenarioConfig, TestScenarioBuilder
@@ -41,18 +42,10 @@ single_csv_input_state_is_earlier_scenario_concurrent = (
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
-                {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {"some_old_file.csv": "2023-06-01T03:54:07.000000Z"},
-                            "_ab_source_file_last_modified": "2023-06-01T03:54:07.000000Z_some_old_file.csv"
-                        },
-                        "stream_descriptor": {"name": "stream1"},
-                    },
-                }
-            ],
+            input_state=StateBuilder().with_stream_state("stream1", {
+                "history": {"some_old_file.csv": "2023-06-01T03:54:07.000000Z"},
+                "_ab_source_file_last_modified": "2023-06-01T03:54:07.000000Z_some_old_file.csv"
+            }).build(),
         )
     )
     .set_expected_records(
@@ -144,18 +137,10 @@ single_csv_file_is_skipped_if_same_modified_at_as_in_history_concurrent = (
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
-                {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {"a.csv": "2023-06-05T03:54:07.000000Z"},
-                            "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_a.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
-                    },
-                }
-            ],
+            input_state=StateBuilder().with_stream_state("stream1", {
+                "history": {"a.csv": "2023-06-05T03:54:07.000000Z"},
+                "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_a.csv",
+            }).build(),
         )
     )
     .set_expected_records(
@@ -229,18 +214,10 @@ single_csv_file_is_synced_if_modified_at_is_more_recent_than_in_history_concurre
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
-                {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {"a.csv": "2023-06-01T03:54:07.000000Z"},
-                            "_ab_source_file_last_modified": "2023-06-01T03:54:07.000000Z_a.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
-                    },
-                }
-            ],
+            input_state=StateBuilder().with_stream_state("stream1", {
+                "history": {"a.csv": "2023-06-01T03:54:07.000000Z"},
+                "_ab_source_file_last_modified": "2023-06-01T03:54:07.000000Z_a.csv",
+            }).build(),
         )
     )
     .set_expected_records(
@@ -603,16 +580,9 @@ single_csv_input_state_is_later_scenario_concurrent = (
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
-                {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {"history": {"recent_file.csv": "2023-07-15T23:59:59.000000Z"},
-                                         "_ab_source_file_last_modified": "2023-07-15T23:59:59.000000Z_recent_file.csv"},
-                        "stream_descriptor": {"name": "stream1"},
-                    },
-                }
-            ],
+            input_state=StateBuilder().with_stream_state("stream1", {"history": {"recent_file.csv": "2023-07-15T23:59:59.000000Z"},
+                                 "_ab_source_file_last_modified": "2023-07-15T23:59:59.000000Z_recent_file.csv"},
+            ).build(),
         )
     )
 ).build()
@@ -1049,16 +1019,10 @@ multi_csv_skip_file_if_already_in_history_concurrent = (
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
-                {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {"history": {"a.csv": "2023-06-05T03:54:07.000000Z"},
-                                         "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_a.csv"},
-                        "stream_descriptor": {"name": "stream1"},
-                    },
-                }
-            ],
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
+                {"history": {"a.csv": "2023-06-05T03:54:07.000000Z"},
+                 "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_a.csv"}).build(),
         )
     )
 ).build()
@@ -1179,18 +1143,13 @@ multi_csv_include_missing_files_within_history_range_concurrent_cursor_is_newer 
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {"a.csv": "2023-06-05T03:54:07.000000Z", "c.csv": "2023-06-06T03:54:07.000000Z"},
-                            "_ab_source_file_last_modified": "2023-06-06T03:54:07.000000Z_c.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
-                    },
+                    "history": {"a.csv": "2023-06-05T03:54:07.000000Z", "c.csv": "2023-06-06T03:54:07.000000Z"},
+                    "_ab_source_file_last_modified": "2023-06-06T03:54:07.000000Z_c.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -1311,18 +1270,13 @@ multi_csv_include_missing_files_within_history_range_concurrent_cursor_is_older 
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {"a.csv": "2023-06-05T03:54:07.000000Z", "c.csv": "2023-06-06T03:54:07.000000Z"},
-                            "_ab_source_file_last_modified": "2023-06-03T03:54:07.000000Z_x.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
-                    },
+                    "history": {"a.csv": "2023-06-05T03:54:07.000000Z", "c.csv": "2023-06-06T03:54:07.000000Z"},
+                    "_ab_source_file_last_modified": "2023-06-03T03:54:07.000000Z_x.csv",
                 }
-            ],
+            ).build()
         )
     )
 ).build()
@@ -1497,22 +1451,17 @@ multi_csv_remove_old_files_if_history_is_full_scenario_concurrent_cursor_is_newe
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "very_very_old_file.csv": "2023-06-01T03:54:07.000000Z",
-                                "very_old_file.csv": "2023-06-02T03:54:07.000000Z",
-                                "old_file_same_timestamp_as_a.csv": "2023-06-06T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-06-06T03:54:07.000000Z_old_file_same_timestamp_as_a.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "very_very_old_file.csv": "2023-06-01T03:54:07.000000Z",
+                        "very_old_file.csv": "2023-06-02T03:54:07.000000Z",
+                        "old_file_same_timestamp_as_a.csv": "2023-06-06T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-06-06T03:54:07.000000Z_old_file_same_timestamp_as_a.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -1687,22 +1636,17 @@ multi_csv_remove_old_files_if_history_is_full_scenario_concurrent_cursor_is_olde
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "very_very_old_file.csv": "2023-06-01T03:54:07.000000Z",
-                                "very_old_file.csv": "2023-06-02T03:54:07.000000Z",
-                                "old_file_same_timestamp_as_a.csv": "2023-06-06T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-05-01T03:54:07.000000Z_very_very_very_old_file.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "very_very_old_file.csv": "2023-06-01T03:54:07.000000Z",
+                        "very_old_file.csv": "2023-06-02T03:54:07.000000Z",
+                        "old_file_same_timestamp_as_a.csv": "2023-06-06T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-05-01T03:54:07.000000Z_very_very_very_old_file.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -2176,22 +2120,17 @@ multi_csv_sync_recent_files_if_history_is_incomplete_scenario_concurrent_cursor_
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "b.csv": "2023-06-05T03:54:07.000000Z",
-                                "c.csv": "2023-06-05T03:54:07.000000Z",
-                                "d.csv": "2023-06-05T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_b.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "b.csv": "2023-06-05T03:54:07.000000Z",
+                        "c.csv": "2023-06-05T03:54:07.000000Z",
+                        "d.csv": "2023-06-05T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_b.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -2297,22 +2236,17 @@ multi_csv_sync_recent_files_if_history_is_incomplete_scenario_concurrent_cursor_
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "b.csv": "2023-06-05T03:54:07.000000Z",
-                                "c.csv": "2023-06-05T03:54:07.000000Z",
-                                "d.csv": "2023-06-05T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_d.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "b.csv": "2023-06-05T03:54:07.000000Z",
+                        "c.csv": "2023-06-05T03:54:07.000000Z",
+                        "d.csv": "2023-06-05T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-06-05T03:54:07.000000Z_d.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -2441,22 +2375,17 @@ multi_csv_sync_files_within_time_window_if_history_is_incomplete__different_time
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "c.csv": "2023-06-07T03:54:07.000000Z",
-                                "d.csv": "2023-06-08T03:54:07.000000Z",
-                                "e.csv": "2023-06-08T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-06-08T03:54:07.000000Z_e.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "c.csv": "2023-06-07T03:54:07.000000Z",
+                        "d.csv": "2023-06-08T03:54:07.000000Z",
+                        "e.csv": "2023-06-08T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-06-08T03:54:07.000000Z_e.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -2584,22 +2513,17 @@ multi_csv_sync_files_within_time_window_if_history_is_incomplete__different_time
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "c.csv": "2023-06-07T03:54:07.000000Z",
-                                "d.csv": "2023-06-08T03:54:07.000000Z",
-                                "e.csv": "2023-06-08T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-06-08T03:54:07.000000Z_e.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "c.csv": "2023-06-07T03:54:07.000000Z",
+                        "d.csv": "2023-06-08T03:54:07.000000Z",
+                        "e.csv": "2023-06-08T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-06-08T03:54:07.000000Z_e.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -2753,22 +2677,17 @@ multi_csv_sync_files_within_history_time_window_if_history_is_incomplete_differe
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "old_file.csv": "2023-06-05T00:00:00.000000Z",
-                                "c.csv": "2023-06-07T03:54:07.000000Z",
-                                "d.csv": "2023-06-08T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-06-08T03:54:07.000000Z_d.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "old_file.csv": "2023-06-05T00:00:00.000000Z",
+                        "c.csv": "2023-06-07T03:54:07.000000Z",
+                        "d.csv": "2023-06-08T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-06-08T03:54:07.000000Z_d.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
@@ -2922,22 +2841,17 @@ multi_csv_sync_files_within_history_time_window_if_history_is_incomplete_differe
     )
     .set_incremental_scenario_config(
         IncrementalScenarioConfig(
-            input_state=[
+            input_state=StateBuilder().with_stream_state(
+                "stream1",
                 {
-                    "type": "STREAM",
-                    "stream": {
-                        "stream_state": {
-                            "history": {
-                                "old_file.csv": "2023-06-05T00:00:00.000000Z",
-                                "c.csv": "2023-06-07T03:54:07.000000Z",
-                                "d.csv": "2023-06-08T03:54:07.000000Z",
-                            },
-                            "_ab_source_file_last_modified": "2023-06-04T00:00:00.000000Z_very_old_file.csv",
-                        },
-                        "stream_descriptor": {"name": "stream1"},
+                    "history": {
+                        "old_file.csv": "2023-06-05T00:00:00.000000Z",
+                        "c.csv": "2023-06-07T03:54:07.000000Z",
+                        "d.csv": "2023-06-08T03:54:07.000000Z",
                     },
+                    "_ab_source_file_last_modified": "2023-06-04T00:00:00.000000Z_very_old_file.csv",
                 }
-            ],
+            ).build(),
         )
     )
 ).build()
